@@ -1,3 +1,6 @@
+#ifndef RIFF_H
+#define RIFF_H
+
 /*
  * riff.h - MJPEG creator tool (https://github.com/nanoant/mjpeg)
  *
@@ -208,6 +211,7 @@ typedef struct {
 	VIDEO_FIELD_DESC field;
 } __attribute__((packed)) VPRP;
 
+#define ASPECT_16_9 0x00100009
 #define ASPECT_4_3 0x00040003
 #define ASPECT_3_2 0x00030002
 
@@ -355,3 +359,5 @@ size_t fwritesafe(const void *ptr, size_t size, FILE *out);
 long fseeksafe(FILE *out, long pos, int whence);
 void fgetpossafe(FILE *out, fpos_t *pos);
 int fupdate(FILE *out, fpos_t *pos, uint32_t value);
+
+#endif /* RIFF_H */

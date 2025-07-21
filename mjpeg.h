@@ -1,0 +1,64 @@
+#ifndef MJPEG_H
+#define MJPEG_H
+
+#include <stdint.h>
+
+#include "freertos/FreeRTOS.h"
+#include "freertos/queue.h"
+
+#include "sd.h"
+
+#include "esp_log.h"
+
+#include "riff.h"
+
+// TODO: For the pixel height, pixel width, and aspect ratio, the info is available somewhere in the esp32-camera component, we might be able to extract it from there
+
+#define FRAME_SIZE      FRAMESIZE_HD
+#define FPS             1
+#define BIT_COUNT       24
+
+#if (FRAME_SIZE == FRAMESIZE_HD)
+        #define HEIGHT          640
+        #define WIDTH           480
+        #define ASPECT_RATIO    ASPECT_16_9
+#endif
+
+#define MJPEG_SVC_TASK                 mjpeg_svc
+#define MJPEG_SVC_TASK_NAME            "MJPEG-SVC-TASK"
+#define MJPEG_SVC_STACK_SIZE           4096
+#define MJPEG_SVC_TASK_PRIORITY        tskIDLE_PRIORITY + 1
+#define MJPEG_SVC_TASK_CORE            1
+#define MJPEG_SVC_TASK_MALLOC          MALLOC_CAP_SPIRAM
+
+struct mjpeg_context {
+	sd_handle_t out_file_handle; // This is the real file that the avi will be stored in
+	sd_handle_t idx_file_handle; // This is a temporary file. It stores the index table for seeking to particular frames that is appended to the end of the avi file after we are done
+	uint8_t fps;		// We really can't get fps larger than 256. Change if we can
+	uint16_t height;
+	uint16_t width;
+	fpos_t riff_size_pos;
+	fpos_t hdrl_size_pos;
+	fpos_t strl_size_pos;
+	fpos_t movi_size_pos;
+	AVIH avih;
+	STRH strh;
+	BMPH bmph;
+	VPRP vprp;
+};
+
+typedef struct mjpeg_context	mjpeg_context_t;
+typedef struct mjpeg_context*	mjpeg_handle_t;
+
+struct mjpeg_svc_context {
+	mjpeg_handle_t mjpeg_handle;
+	QueueHandle_t out_buffer;
+	QueueHandle_t in_buffer;
+};
+
+typedef struct mjpeg_svc_context	mjpeg_svc_context_t;
+typedef struct mjpeg_svc_context*	mjpeg_svc_handle_t;
+
+void mjpeg_svc(void *pvParameters);
+
+#endif /* MJPEG_H */

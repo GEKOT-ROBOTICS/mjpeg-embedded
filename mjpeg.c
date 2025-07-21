@@ -29,16 +29,30 @@
 #include <string.h>
 
 #include "riff.h"
-#include "mp3.h"
-#include "jpeg.h"
+#include "mjpeg.h"
 
-#define DEFAULT_FPS 25
+void mjpeg_svc(void *pvParameters) {
+	const char *F_TAG = pcTaskGetName(NULL);
 
-void help(const char *program)
-{
-	fprintf(stderr, "Usage: %s [-f fps] [-o output.avi] [-s input.mp3] input1.jpg [input2.jpg ...]\n", program);
+	ESP_LOGI(F_TAG, "Entered on core %d", xPortGetCoreID());
+
+	mjpeg_svc_handle_t ctx = (mjpeg_svc_handle_t)pvParameters;
+
+	mjpeg_handle_t mjpeg_handle = ctx->mjpeg_handle;
+	QueueHandle_t out_buffer = ctx->out_buffer;
+	QueueHandle_t in_buffer = ctx->in_buffer;
+
+	frame_buffer_t frame_buffer;
+
+	ESP_LOGI(F_TAG, "Writing header information for .avi file");
+
+	while (true) {
+		
+		vTaskDelay(pdMS_TO_TICKS(1000));
+	}
 }
 
+/*
 int main(int argc, char const *argv[])
 {
 	int argi, fps = DEFAULT_FPS, width, height;
@@ -49,15 +63,11 @@ int main(int argc, char const *argv[])
 	STRH strh;
 	BMPH bmph;
 	VPRP vprp;
-	WAVH wavh;
-	ADPCMH adpcmh;
-	MP3H mp3h;
 	int frame = 0;
 	FILE *out, *idx, *snd = NULL, *in;
 	mp3header_t mp3 = 0;
 	double videoFrameLength, audio = 0, video = 0;
 
-	/* read command line */
 	for(argi = 1; argi < argc && *argv[argi] == '-'; argi++) {
 		if(!strcmp(argv[argi], "-h")) {
 			help(argv[0]);
@@ -80,11 +90,6 @@ int main(int argc, char const *argv[])
 		return 255;
 	}
 
-	if(!jpeg_size(argv[argi], &width, &height)) {
-		fprintf(stderr, "Error: Invalid JPEG file `%s'.\n", argv[argi]);
-		return 1;
-	}
-
 	if(outPath && !(out = fopen(outPath, "w+b"))) {
 		fprintf(stderr, "Error: Cannot open output `%s'.\n", outPath);
 		return 2;
@@ -98,44 +103,15 @@ int main(int argc, char const *argv[])
 		fprintf(stderr, "Error: Cannot create temporary index for `%s'.\n", outPath ?: "(stdout)");
 		return 3;
 	}
-	if(sndPath && !(snd = fopen(sndPath, "rb"))) {
-		fprintf(stderr, "Error: Cannot open input `%s'.\n", sndPath);
-		return 4;
-	}
 
-	if(snd) {
-		if((mp3 = freadmp3header(snd))) {
-			fprintf(stderr, "MP3 `%s' sample rate: %d, bitrate: %d, length: %lu, padding: %d\n", sndPath,
-				mp3samplerate(mp3), mp3bitrate(mp3), mp3framesize(mp3), MPEGPadding(mp3));
-			fseek(snd, 0, SEEK_SET);
-		} else {
-			FOURCC fcc;
-			uint32_t size;
-			uint16_t cbsize;
-			fseek(snd, 0, SEEK_SET);
-			if(freadchunk(&fcc, &size, snd) && fcc == FOURCC_RIFF &&
-			   freadcc(&fcc, snd) && fcc == FOURCC_WAVE &&
-			   freadchunk(&fcc, &size, snd) && fcc == FOURCC_FMT && (sndFmtSize = size) &&
-			   fgetpos(snd, &sndFmtPos) == 0 &&
-			   fread(&wavh, 1, sizeof(wavh), snd) && wavh.format == WAVE_FORMAT_ADPCM &&
-			   fread(&cbsize, 1, sizeof(cbsize), snd) && (cbsize >= sizeof(adpcmh)) &&
-			   fread(&adpcmh, 1, sizeof(adpcmh), snd) && fseek(snd, cbsize - sizeof(adpcmh), SEEK_CUR) == 0) {
-				/* skip all headers until data */
-				while(freadchunk(&fcc, &size, snd) && fcc != FOURCC_DATA) {
-					fseek(snd, size, SEEK_CUR);
-				}
-				if(fcc == FOURCC_DATA) {
-					fprintf(stderr, "WAV `%s' sample rate: %d, bitrate: %d, format: %d, channels: %d, samples per block: %d, block align: %d bytes, data: %d bytes, blocks: %.12g\n", sndPath,
-						wavh.samplesPerSec, wavh.bitsPerSample, wavh.format, wavh.channels, adpcmh.samplesPerBlock,
-						wavh.blockAlign, size, (float)size / (float)wavh.blockAlign);
-					fgetpos(snd, &sndDataPos);
-				}
-			} else {
-				fclose(snd), snd = NULL;
-			}
-		}
-	}
+	// We do not know what the size of the riff will end up being until after we are done writing everything.
+	// Thus, we should save ourselves space for us to update the riff size later
 
+	// The RIFF keyword and the size of the file are not included in the "riff size"
+	// Therefore, technically, we can consider the riff size as: total file size - 8 bytes
+	fwritecc(FOURCC_RIFF, out);
+
+	// Store the position here
 	fgetpos(out, &riffPos);
 	fwritechunk(FOURCC_RIFF, 0, out);
 	riffSize = fwritecc(FOURCC_AVI, out);
@@ -204,58 +180,6 @@ int main(int argc, char const *argv[])
 			fupdate(out, &strlPos, strlSize);
 			hdrlSize += strlSize;
 
-			if(snd) {
-				fgetpos(out, &strlPos);
-				hdrlSize += fwritechunk(FOURCC_LIST, 0, out);
-				strlSize = fwritecc(FOURCC_STRL, out);
-
-				if(mp3) {
-					strlSize += fwritechunk(FOURCC_STRH, sizeof(strh), out);
-					memset(&strh, 0, sizeof(strh));
-					strh.type = FOURCC_AUDS;
-					strh.scale = 1;
-					strh.rate = mp3bitrate(mp3) * 1000 / 8;
-					strh.quality = 10000;
-					strh.initialFrames = 1;
-					strh.length = avih.totalFrames * videoFrameLength / mp3framelength(mp3);
-					strh.suggestedBufferSize = 1024*1024;
-					strh.sampleSize = 1;
-					strlSize += fwrite(&strh, 1, sizeof(strh), out);
-
-					strlSize += fwritechunk(FOURCC_STRF, sizeof(mp3h), out);
-					memset(&mp3h, 0, sizeof(mp3h));
-					mp3h.wavh.format = WAVE_FORMAT_MPEGLAYER3;
-					mp3h.wavh.channels = MPEGChannels(mp3) == MPEGChannelsMono ? 1 : 2;
-					mp3h.wavh.samplesPerSec = mp3samplerate(mp3);
-					mp3h.wavh.avgBytesPerSec = strh.rate;
-					mp3h.wavh.blockAlign = 1;
-					mp3h.size = sizeof(mp3h) - sizeof(mp3h.wavh) - sizeof(mp3h.size);
-					mp3h.id = MPEGLAYER3_ID_MPEG;
-					mp3h.flags = MPEGLAYER3_FLAG_PADDING_ISO;
-					strlSize += fwrite(&mp3h, 1, sizeof(mp3h), out);
-				} else {
-					strlSize += fwritechunk(FOURCC_STRH, sizeof(strh), out);
-					memset(&strh, 0, sizeof(strh));
-					strh.type = FOURCC_AUDS;
-					strh.scale = 253;
-					strh.rate = wavh.samplesPerSec / wavh.bitsPerSample;
-					strh.quality = (uint32_t)-1;
-					strh.initialFrames = 0;
-					strh.length = avih.totalFrames * wavh.samplesPerSec / fps / adpcmh.samplesPerBlock;
-					strh.suggestedBufferSize = 12288 /* ??? FFmpeg tells so */;
-					strh.sampleSize = wavh.blockAlign;
-					strlSize += fwrite(&strh, 1, sizeof(strh), out);
-
-					fsetpos(snd, &sndFmtPos);
-					strlSize += fwritechunk(FOURCC_STRF, sndFmtSize, out);
-					strlSize += fcopy(snd, out, sndFmtSize);
-					fsetpos(snd, &sndDataPos);
-				}
-
-				fupdate(out, &strlPos, strlSize);
-				hdrlSize += strlSize;
-			}
-
 		fupdate(out, &hdrlPos, hdrlSize);
 		riffSize += hdrlSize;
 
@@ -265,39 +189,6 @@ int main(int argc, char const *argv[])
 
 		while(1) {
 			if(frame + argi >= argc) break;
-
-			while(snd && audio < video + videoFrameLength * 2) {
-				if(mp3) {
-					/* read next mp3 frame */
-					if(!(mp3 = freadmp3header(snd))) {
-						fseek(snd, 0, SEEK_SET);
-						mp3 = freadmp3header(snd);
-					}
-					size_t bufSize = mp3framesize(mp3) - sizeof(mp3);
-					uint32_t buf[bufSize + 1];
-					buf[bufSize] = 0;
-					if(fread(buf, 1, bufSize, snd) == bufSize) {
-						IDX1 idx1 = { CC("01wb"), 0, moviSize, bufSize + sizeof(mp3) };
-						fwrite(&idx1, 1, sizeof(idx1), idx);
-						moviSize += fwritechunk(CC("01wb"), bufSize + sizeof(mp3), out);
-						moviSize += fwritemp3header(out, mp3);
-						moviSize += fwrite(buf, 1, bufSize + (bufSize % 2), out);
-					}
-					audio += mp3framelength(mp3);
-				} else {
-					/* read next wav chunk */
-					size_t copied;
-					IDX1 idx1 = { CC("01wb"), 0, moviSize, wavh.blockAlign};
-					fwrite(&idx1, 1, sizeof(idx1), idx);
-					moviSize += fwritechunk(CC("01wb"), wavh.blockAlign, out);
-					moviSize += copied = fcopy(snd, out, wavh.blockAlign);
-					if(copied == 0) {
-						fsetpos(snd, &sndDataPos);
-						moviSize += fcopy(snd, out, wavh.blockAlign);
-					}
-					audio += (double)adpcmh.samplesPerBlock / (double)wavh.samplesPerSec;
-				}
-			}
 
 			in = fopen(argv[frame + argi], "rb");
 			if(!in) {
@@ -313,7 +204,7 @@ int main(int argc, char const *argv[])
 				while(1) {
 					read = fread(buf, 1, sizeof(buf), in);
 					if(read > 0) {
-						/* NOTE: Little trick here, ensure we write 2 byte padded data */
+						// NOTE: Little trick here, ensure we write 2 byte padded data
 						moviSize += fwrite(buf, 1, read + (read % 2), out);
 					}
 					if(read < sizeof(buf)) break;
@@ -327,7 +218,7 @@ int main(int argc, char const *argv[])
 		fupdate(out, &moviPos, moviSize);
 		riffSize += moviSize;
 
-		/* rewrite index */
+		// rewrite index
 		if(idx) {
 			uint32_t buf[1024];
 			moviSize += fwritechunk(FOURCC_IDX1, ftell(idx), out);
@@ -335,7 +226,7 @@ int main(int argc, char const *argv[])
 			while(1) {
 				read = fread(buf, 1, sizeof(buf), idx);
 				if(read > 0) {
-					/* NOTE: Little trick here, ensure we write 2 byte padded data */
+					// NOTE: Little trick here, ensure we write 2 byte padded data
 					riffSize += fwrite(buf, 1, read + (read % 2), out);
 				}
 				if(read < sizeof(buf)) break;
@@ -350,3 +241,4 @@ int main(int argc, char const *argv[])
 
 	return 0;
 }
+*/
