@@ -54,7 +54,10 @@
 #define FOURCC_FMT  FOURCC_STR_TO_INT('f','m','t',' ')
 #define FOURCC_DATA FOURCC_STR_TO_INT('d','a','t','a')
 
+#define FOURCC_00DC FOURCC_STR_TO_INT('0','0','d','c')
+#define FOURCC_JPEG FOURCC_STR_TO_INT('M','J','P','G')
 
+/*
 #define SWAPL(x) (((x) >> 24) | (((x)&0x00ff0000) >> 8) | (((x)&0x0000ff00) << 8) | ((x) << 24))
 #define SWAPS(x) (((x) >> 8) | ((x&0xff) << 8))
 #define CC(s) (*((uint32_t *)(s)))
@@ -89,7 +92,7 @@
 #define FOURCC_WAVE CC("WAVE")
 #define FOURCC_FMT  CC("fmt ")
 #define FOURCC_DATA CC("data")
-
+*/
 typedef uint32_t FOURCC;
 
 typedef struct {

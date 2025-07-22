@@ -58,6 +58,7 @@ typedef struct mjpeg_context	mjpeg_context_t;
 typedef struct mjpeg_context*	mjpeg_handle_t;
 
 struct mjpeg_svc_context {
+	uint8_t	state;
 	mjpeg_handle_t mjpeg_handle;
 	QueueHandle_t out_buffer;
 	QueueHandle_t in_buffer;
@@ -66,7 +67,6 @@ struct mjpeg_svc_context {
 typedef struct mjpeg_svc_context	mjpeg_svc_context_t;
 typedef struct mjpeg_svc_context*	mjpeg_svc_handle_t;
 
-esp_err_t _write_riff_header(mjpeg_handle_t mjpeg_handle);
 void mjpeg_svc(void *pvParameters);
 
 #endif /* MJPEG_H */
