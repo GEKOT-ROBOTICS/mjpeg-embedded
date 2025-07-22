@@ -26,6 +26,35 @@
  * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+// Portable regardless of big or little endian processors
+#define FOURCC_STR_TO_INT(a,b,c,d)	((uint32_t)(a) | ((uint32_t)(b) << 8) | ((uint32_t)(c) << 16) | ((uint32_t)(d) << 24))
+
+#define FOURCC_RIFF FOURCC_STR_TO_INT('R','I','F','F')
+#define FOURCC_AVI  FOURCC_STR_TO_INT('A','V','I',' ')
+#define FOURCC_JUNK FOURCC_STR_TO_INT('J','U','N','K')
+#define FOURCC_LIST FOURCC_STR_TO_INT('L','I','S','T')
+#define FOURCC_INFO FOURCC_STR_TO_INT('I','N','F','O')
+#define FOURCC_DXDT FOURCC_STR_TO_INT('D','X','D','T')
+#define FOURCC_HDLR FOURCC_STR_TO_INT('H','D','L','R')
+#define FOURCC_AVIH FOURCC_STR_TO_INT('a','v','i','h')
+#define FOURCC_STRL FOURCC_STR_TO_INT('s','t','r','l')
+#define FOURCC_STRH FOURCC_STR_TO_INT('s','t','r','h')
+#define FOURCC_STRF FOURCC_STR_TO_INT('s','t','r','f')
+#define FOURCC_STRD FOURCC_STR_TO_INT('s','t','r','d')
+#define FOURCC_STRN FOURCC_STR_TO_INT('s','t','r','n')
+#define FOURCC_VIDS FOURCC_STR_TO_INT('v','i','d','s')
+#define FOURCC_AUDS FOURCC_STR_TO_INT('a','u','d','s')
+#define FOURCC_ODML FOURCC_STR_TO_INT('o','d','m','l')
+#define FOURCC_DMLH FOURCC_STR_TO_INT('d','m','l','h')
+#define FOURCC_MOVI FOURCC_STR_TO_INT('m','o','v','i')
+#define FOURCC_IDX1 FOURCC_STR_TO_INT('i','d','x','1')
+#define FOURCC_VPRP FOURCC_STR_TO_INT('v','p','r','p')
+
+#define FOURCC_WAVE FOURCC_STR_TO_INT('W','A','V','E')
+#define FOURCC_FMT  FOURCC_STR_TO_INT('f','m','t',' ')
+#define FOURCC_DATA FOURCC_STR_TO_INT('d','a','t','a')
+
+
 #define SWAPL(x) (((x) >> 24) | (((x)&0x00ff0000) >> 8) | (((x)&0x0000ff00) << 8) | ((x) << 24))
 #define SWAPS(x) (((x) >> 8) | ((x&0xff) << 8))
 #define CC(s) (*((uint32_t *)(s)))

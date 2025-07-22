@@ -8,7 +8,7 @@
 
 #include "sd.h"
 
-#include "esp_log.h"
+#include "esp_err.h"
 
 #include "riff.h"
 
@@ -37,10 +37,17 @@ struct mjpeg_context {
 	uint8_t fps;		// We really can't get fps larger than 256. Change if we can
 	uint16_t height;
 	uint16_t width;
-	fpos_t riff_size_pos;
-	fpos_t hdrl_size_pos;
-	fpos_t strl_size_pos;
-	fpos_t movi_size_pos;
+	size_t riff_size;
+	size_t hdrl_size;
+	size_t strl_size;
+	size_t movi_size;
+	size_t total_frames;
+	long riff_size_pos;
+	long hdrl_size_pos;
+	long strl_size_pos;
+	long movi_size_pos;
+	long avih_total_frames_pos;
+	long strh_length_pos;
 	AVIH avih;
 	STRH strh;
 	BMPH bmph;
@@ -59,6 +66,7 @@ struct mjpeg_svc_context {
 typedef struct mjpeg_svc_context	mjpeg_svc_context_t;
 typedef struct mjpeg_svc_context*	mjpeg_svc_handle_t;
 
+esp_err_t _write_riff_header(mjpeg_handle_t mjpeg_handle);
 void mjpeg_svc(void *pvParameters);
 
 #endif /* MJPEG_H */
