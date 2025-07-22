@@ -341,6 +341,7 @@ esp_err_t _write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	buffer[1] = frame_buffer.buffer_len;
 	ctx->out_file_handle->payload.current_data_len	= sizeof(FOURCC) + sizeof(uint32_t);
 	ctx->out_file_handle->payload.data		= (char *)buffer;
+	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
 		ESP_LOGE(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
 		return err;
@@ -351,6 +352,7 @@ esp_err_t _write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	// Data must be byte aligned, so if we happent o write an odd amount of data, we must pad to make it even
 	ctx->out_file_handle->payload.current_data_len	= frame_buffer.buffer_len;
 	ctx->out_file_handle->payload.data		= (char *)frame_buffer.buffer;
+	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
 		ESP_LOGE(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
 		return err;
@@ -360,6 +362,7 @@ esp_err_t _write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	if (frame_buffer.buffer_len % 2 != 0) {
 		ctx->out_file_handle->payload.current_data_len	= sizeof(byte_alignment_buffer);
 		ctx->out_file_handle->payload.data		= (char *)&byte_alignment_buffer;
+		err = write_file(ctx->out_file_handle);
 		if (err != ESP_OK) {
 			ESP_LOGE(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
 			return err;
@@ -422,6 +425,7 @@ esp_err_t _write_final_riff_updates(mjpeg_handle_t ctx) {
 		if (sizeof(idx1) % 2 != 0) {
 			ctx->out_file_handle->payload.current_data_len	= sizeof(byte_alignment_buffer);
 			ctx->out_file_handle->payload.data		= (char *)&byte_alignment_buffer;
+			err = write_file(ctx->out_file_handle);
 			if (err != ESP_OK) {
 				ESP_LOGE(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
 				return err;
