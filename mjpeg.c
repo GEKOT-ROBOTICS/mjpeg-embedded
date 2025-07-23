@@ -496,7 +496,7 @@ void mjpeg_svc(void *pvParameters) {
 				ctx->state = TASK_RUN;
 				break;
 			case TASK_RUN:
-				xPeriod = pdMS_TO_TICKS(50);
+				xPeriod = pdMS_TO_TICKS(5);
 				if (xQueueReceive(ctx->in_buffer, &frame_buffer, 0) == pdPASS) {
 					err = _write_jpeg_frame(ctx->mjpeg_handle, frame_buffer);
 					if (err != ESP_OK) {
