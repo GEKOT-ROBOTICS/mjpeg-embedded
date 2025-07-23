@@ -18,10 +18,15 @@
 #define FPS             1
 #define BIT_COUNT       24
 
-#if (FRAME_SIZE == FRAMESIZE_HD)
-        #define HEIGHT          640
-        #define WIDTH           480
-        #define ASPECT_RATIO    ASPECT_16_9
+#if (FRAME_SIZE == FRAMESIZE_VGA)
+        #define HEIGHT          480
+        #define WIDTH           640
+        #define ASPECT_RATIO    ASPECT_4_3
+
+#elif (FRAME_SIZE == FRAMESIZE_HD)
+	#define HEIGHT		720
+	#define WIDTH		1280
+	#define ASPECT_RATIO	ASPECT_16_9
 #endif
 
 #define MJPEG_SVC_TASK                 mjpeg_svc

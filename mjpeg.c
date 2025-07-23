@@ -444,6 +444,25 @@ esp_err_t _write_final_riff_updates(mjpeg_handle_t ctx) {
 		return err;
 	}
 
+	// We know the number of frames we recorded, so update that value
+	ctx->out_file_handle->payload.current_data_len	= sizeof(ctx->total_frames);
+	ctx->out_file_handle->payload.data		= (char *)&ctx->total_frames;
+	ctx->out_file_handle->payload.pos		= ctx->avih_total_frames_pos;
+	err = update_file(ctx->out_file_handle);
+	if (err != ESP_OK) {
+		ESP_LOGE(F_TAG, "Failed to update the avih total frames: %s", esp_err_to_name(err));
+		return err;
+	}
+
+	ctx->out_file_handle->payload.current_data_len	= sizeof(ctx->total_frames);
+	ctx->out_file_handle->payload.data		= (char *)&ctx->total_frames;
+	ctx->out_file_handle->payload.pos		= ctx->strh_length_pos;
+	err = update_file(ctx->out_file_handle);
+	if (err != ESP_OK) {
+		ESP_LOGE(F_TAG, "Failed to update the strh length: %s", esp_err_to_name(err));
+		return err;
+	}
+
 	return err;
 }
 
