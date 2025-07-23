@@ -12,32 +12,7 @@
 
 #include "riff.h"
 
-// TODO: For the pixel height, pixel width, and aspect ratio, the info is available somewhere in the esp32-camera component, we might be able to extract it from there
-
-#define FRAME_SIZE      FRAMESIZE_VGA
-#define FPS             20
 #define BIT_COUNT       24
-
-#if (FRAME_SIZE == FRAMESIZE_CIF)
-	#define HEIGHT		296
-	#define WIDTH		400
-	#define ASPECT_RATIO	ASPECT_4_3
-
-#elif (FRAME_SIZE == FRAMESIZE_QVGA)
-	#define HEIGHT		240
-	#define WIDTH		320
-	#define ASPECT_RATIO	ASPECT_4_3
-
-#elif (FRAME_SIZE == FRAMESIZE_VGA)
-        #define HEIGHT          480
-        #define WIDTH           640
-        #define ASPECT_RATIO    ASPECT_4_3
-
-#elif (FRAME_SIZE == FRAMESIZE_HD)
-	#define HEIGHT		720
-	#define WIDTH		1280
-	#define ASPECT_RATIO	ASPECT_16_9
-#endif
 
 #define MJPEG_SVC_TASK                 mjpeg_svc
 #define MJPEG_SVC_TASK_NAME            "MJPEG-SVC-TASK"
