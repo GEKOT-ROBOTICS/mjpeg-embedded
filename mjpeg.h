@@ -12,8 +12,6 @@
 
 #include "riff.h"
 
-#define BIT_COUNT       24
-
 #define MJPEG_SVC_TASK                 mjpeg_svc
 #define MJPEG_SVC_TASK_NAME            "MJPEG-SVC-TASK"
 #define MJPEG_SVC_STACK_SIZE           4096

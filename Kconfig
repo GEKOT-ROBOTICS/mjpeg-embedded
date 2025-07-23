@@ -1,0 +1,21 @@
+menu "CDC - mjpeg embedded configuration"
+
+config MJPEG_ASPECT_RATIO
+        hex
+        help
+                Auto populated aspect ratio based on the frame size selected in camera module. Found here: https://github.com/espressif/esp32-camera/blob/2368d94f11d0cb6d8ec7b153fa4390f8cd1f83cb/driver/include/sensor.h#L134C1-L144C18
+        default 0x00040003 if CAM_FRAMESIZE_QQVGA || CAM_FRAMESIZE_HQVGA || CAM_FRAMESIZE_QVGA || CAM_FRAMESIZE_CIF || CAM_FRAMESIZE_VGA || CAM_FRAMESIZE_SVGA || CAM_FRAMESIZE_XGA || CAM_FRAMESIZE_UXGA || CAM_FRAMESIZE_QXGA || CAM_FRAMESIZE_QSXGA || CAM_FRAMESIZE_5MP
+        default 0x00030002 if CAM_FRAMESIZE_HVGA
+        default 0x00F0000A if CAM_FRAMESIZE_WQXGA
+        default 0x00F00009 if CAM_FRAMESIZE_HD || CAM_FRAMESIZE_FHD || CAM_FRAMESIZE_QHD
+        default 0x00050004 if CAM_FRAMESIZE_QCIF || CAM_FRAMESIZE_SXGA
+        default 0x00010001 if CAM_FRAMESIZE_96X96 || CAM_FRAMESIZE_128X128 || CAM_FRAMESIZE_240X240 || CAM_FRAMESIZE_320X320
+        default 0x000900F0 if CAM_FRAMESIZE_P_HD || CAM_FRAMESIZE_P_3MP || CAM_FRAMESIZE_P_FHD
+
+config MJPEG_BIT_COUNT
+	int
+	help
+		Not sure what other value to be set here beside 24
+	default 24
+
+endmenu
