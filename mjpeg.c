@@ -32,7 +32,7 @@
 #include "mjpeg.h"
 
 #include "types.h"
-#include "task_states.h"
+#include "task_types.h"
 
 #include "esp_log.h"
 
