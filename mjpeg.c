@@ -31,12 +31,11 @@
 #include "riff.h"
 #include "mjpeg.h"
 
-#include "types.h"
 #include "task_types.h"
 
 #include "esp_log.h"
 
-esp_err_t _write_riff_header(mjpeg_handle_t ctx) {
+esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	const char F_TAG[] = "_write-riff-header";
 	esp_err_t err = ESP_OK;
 
@@ -311,7 +310,7 @@ esp_err_t _write_riff_header(mjpeg_handle_t ctx) {
 }
 
 
-esp_err_t _write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
+esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	const char F_TAG[] = "_write-jpeg-frame";
 	esp_err_t err = ESP_OK;
 
@@ -373,7 +372,7 @@ esp_err_t _write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 }
 
 
-esp_err_t _write_final_riff_updates(mjpeg_handle_t ctx) {
+esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	const char F_TAG[] = "_write-final-riff-updates";
 	esp_err_t err = ESP_OK;
 
@@ -464,64 +463,4 @@ esp_err_t _write_final_riff_updates(mjpeg_handle_t ctx) {
 	}
 
 	return err;
-}
-
-
-void mjpeg_svc(void *pvParameters) {
-	const char *F_TAG = pcTaskGetName(NULL);
-	esp_err_t err = ESP_OK;
-
-	ESP_LOGI(F_TAG, "Entered on core %d", xPortGetCoreID());
-
-	mjpeg_svc_handle_t ctx = (mjpeg_svc_handle_t)pvParameters;
-
-	frame_buffer_t frame_buffer;
-
-	// Write header
-	err = _write_riff_header(ctx->mjpeg_handle);
-	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write the riff header for the AVI file: %s", esp_err_to_name(err));
-		vTaskDelete(NULL);
-	}
-	ESP_LOGI(F_TAG, "Header information written");
-
-	TickType_t xPeriod = pdMS_TO_TICKS(1000);
-	while (true) {
-		switch (ctx->state) {
-			case TASK_IDLE:
-				xPeriod = pdMS_TO_TICKS(1000);
-				break;
-			case TASK_INIT:
-				xPeriod = pdMS_TO_TICKS(100);
-				ctx->state = TASK_RUN;
-				break;
-			case TASK_RUN:
-			xPeriod = pdMS_TO_TICKS(5);
-				if (xQueueReceive(ctx->in_buffer, &frame_buffer, 0) == pdPASS) {
-					err = _write_jpeg_frame(ctx->mjpeg_handle, frame_buffer);
-					if (err != ESP_OK) {
-						ESP_LOGE(F_TAG, "Failed to write jpeg frame: %s", esp_err_to_name(err));
-						// Even if we fail, we should attempt to send the frame buffer back so that we don't clog up the queue
-					}
-
-					if (xQueueSend(ctx->out_buffer, &frame_buffer, 0) != pdPASS) {
-						ESP_LOGE(F_TAG, "Failed to send frame buffer to free it up");
-					}
-				}
-				break;
-			case TASK_EXIT:
-				xPeriod = pdMS_TO_TICKS(1000);
-				ctx->state = TASK_IDLE;
-
-				err = _write_final_riff_updates(ctx->mjpeg_handle);
-				if (err != ESP_OK) {
-					ESP_LOGE(F_TAG, "Failed to update final items of AVI file: %s", esp_err_to_name(err));
-				}
-				break;
-			default:
-				ESP_LOGE(F_TAG, "Invalid state. Returning to TASK_IDLE");
-				ctx->state = TASK_IDLE;
-		}
-		vTaskDelay(xPeriod);
-	}
 }

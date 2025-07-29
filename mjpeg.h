@@ -7,6 +7,7 @@
 #include "freertos/queue.h"
 
 #include "sd.h"
+#include "types.h"
 
 #include "esp_err.h"
 
@@ -45,16 +46,8 @@ struct mjpeg_context {
 typedef struct mjpeg_context	mjpeg_context_t;
 typedef struct mjpeg_context*	mjpeg_handle_t;
 
-struct mjpeg_svc_context {
-	uint8_t	state;
-	mjpeg_handle_t mjpeg_handle;
-	QueueHandle_t out_buffer;
-	QueueHandle_t in_buffer;
-};
-
-typedef struct mjpeg_svc_context	mjpeg_svc_context_t;
-typedef struct mjpeg_svc_context*	mjpeg_svc_handle_t;
-
-void mjpeg_svc(void *pvParameters);
+esp_err_t write_riff_header(mjpeg_handle_t ctx);
+esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer);
+esp_err_t write_final_riff_updates(mjpeg_handle_t ctx);
 
 #endif /* MJPEG_H */
