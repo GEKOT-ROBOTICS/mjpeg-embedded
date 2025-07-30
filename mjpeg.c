@@ -33,10 +33,10 @@
 
 #include "task_types.h"
 
-#include "esp_log.h"
+#include "fabric_log.h"
 
 esp_err_t write_riff_header(mjpeg_handle_t ctx) {
-	const char F_TAG[] = "_write-riff-header";
+	const char F_TAG[] = "write-riff-header";
 	esp_err_t err = ESP_OK;
 
 	uint32_t buffer[16] = {0x00};
@@ -53,7 +53,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write RIFF keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write RIFF keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -66,7 +66,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write temp RIFF size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write temp RIFF size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -76,7 +76,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write AVI keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write AVI keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	// Add AVI keyword to riff size
@@ -88,7 +88,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += sizeof(FOURCC);
@@ -102,7 +102,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write temp HDRL size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write temp HDRL size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += sizeof(uint32_t);
@@ -113,7 +113,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write HDRL keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write HDRL keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += sizeof(FOURCC);
@@ -125,7 +125,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write AVIH keyword and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write AVIH keyword and size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += sizeof(FOURCC) + sizeof(size_t);
@@ -138,7 +138,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)&ctx->avih;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write AVIH struct to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write AVIH struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += sizeof(ctx->avih);
@@ -149,7 +149,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += sizeof(FOURCC);
@@ -163,7 +163,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write temp STRL size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write temp STRL size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += sizeof(uint32_t);
@@ -174,7 +174,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write STRL keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write STRL keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(FOURCC);
@@ -186,7 +186,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write STRH keyword and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write STRH keyword and size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(FOURCC) + sizeof(size_t);
@@ -199,7 +199,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)&ctx->strh;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write STRH struct to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write STRH struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(ctx->strh);
@@ -211,7 +211,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write STRF keyword and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write STRF keyword and size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(FOURCC) + sizeof(size_t);
@@ -221,7 +221,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)&ctx->bmph;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write BMPH struct to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write BMPH struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(BMPH);
@@ -233,7 +233,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write VPRP keyword and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write VPRP keyword and size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(FOURCC) + sizeof(size_t);
@@ -243,7 +243,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)&ctx->vprp;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write VPRP struct to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write VPRP struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->strl_size += sizeof(VPRP);
@@ -254,7 +254,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->strl_size_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the strl size: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the strl size: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->hdrl_size += ctx->strl_size;
@@ -265,7 +265,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->hdrl_size_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the strl size: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the strl size: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += ctx->hdrl_size;
@@ -276,7 +276,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write LIST keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += sizeof(FOURCC);
@@ -290,7 +290,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write temp MOVI size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write temp MOVI size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += sizeof(uint32_t);
@@ -301,7 +301,7 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write MOVI keyword to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write MOVI keyword to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->movi_size += sizeof(FOURCC);
@@ -311,13 +311,13 @@ esp_err_t write_riff_header(mjpeg_handle_t ctx) {
 
 
 esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
-	const char F_TAG[] = "_write-jpeg-frame";
+	const char F_TAG[] = "write-jpeg-frame";
 	esp_err_t err = ESP_OK;
 
 	uint8_t byte_alignment_buffer = 0x00;
 	uint32_t buffer[2] = {0x00};
 	
-	ESP_LOGI(F_TAG, "Received frame buffer: %zu", ctx->total_frames++);
+	FABRIC_LOG_INFO(F_TAG, "Received frame buffer: %zu", ctx->total_frames++);
 	IDX1 idx1 = {
 		.id	= FOURCC_00DC,
 		.flags	= 0,
@@ -330,10 +330,10 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	ctx->idx_file_handle->payload.data		= (char *)&idx1;
 	err = write_file(ctx->idx_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write IDX1 struct to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write IDX1 struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
-	ESP_LOGI(F_TAG, "Saved index information to index file");
+	FABRIC_LOG_INFO(F_TAG, "Saved index information to index file");
 
 	// Write 00dc header and idx1 size to file
 	buffer[0] = FOURCC_00DC;
@@ -342,7 +342,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	ctx->out_file_handle->payload.data		= (char *)buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
 		return err;
 	}					
 	ctx->movi_size += sizeof(FOURCC) + sizeof(uint32_t);
@@ -353,7 +353,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	ctx->out_file_handle->payload.data		= (char *)frame_buffer.buffer;
 	err = write_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to write 00dc header and size to file: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->movi_size += frame_buffer.buffer_len;
@@ -363,7 +363,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 		ctx->out_file_handle->payload.data		= (char *)&byte_alignment_buffer;
 		err = write_file(ctx->out_file_handle);
 		if (err != ESP_OK) {
-			ESP_LOGE(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
+			FABRIC_LOG_ERROR(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
 			return err;
 		}
 		ctx->movi_size += sizeof(byte_alignment_buffer);
@@ -373,7 +373,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 
 
 esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
-	const char F_TAG[] = "_write-final-riff-updates";
+	const char F_TAG[] = "write-final-riff-updates";
 	esp_err_t err = ESP_OK;
 
 	uint8_t byte_alignment_buffer = 0x00;
@@ -384,7 +384,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->movi_size_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the movi size: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the movi size: %s", esp_err_to_name(err));
 		return err;
 	}
 	ctx->riff_size += ctx->movi_size;
@@ -393,7 +393,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	ctx->idx_file_handle->payload.pos		= 0;
 	err = seek_file(ctx->idx_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to set file pointer to the beginning of the index file");
+		FABRIC_LOG_ERROR(F_TAG, "Failed to set file pointer to the beginning of the index file");
 		return err;
 	}
 
@@ -404,11 +404,11 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 		ctx->idx_file_handle->payload.data		= (char *)&idx1;
 		err = read_file(ctx->idx_file_handle);
 		if (err != ESP_OK) {
-			ESP_LOGE(F_TAG, "Failed to read IDX1 from temp file: %s", esp_err_to_name(err));
+			FABRIC_LOG_ERROR(F_TAG, "Failed to read IDX1 from temp file: %s", esp_err_to_name(err));
 			return err;
 		}
 		if (ctx->idx_file_handle->payload.max_data_len != ctx->idx_file_handle->payload.current_data_len) {
-			ESP_LOGE(F_TAG, "We did not retrieve the expected amount of data! Expected: %lu, got: %lu", ctx->idx_file_handle->payload.max_data_len, ctx->idx_file_handle->payload.current_data_len);
+			FABRIC_LOG_ERROR(F_TAG, "We did not retrieve the expected amount of data! Expected: %lu, got: %lu", ctx->idx_file_handle->payload.max_data_len, ctx->idx_file_handle->payload.current_data_len);
 			return ESP_ERR_INVALID_SIZE;
 		}
 
@@ -416,7 +416,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 		ctx->out_file_handle->payload.data		= (char *)&idx1;
 		err = write_file(ctx->out_file_handle);
 		if (err != ESP_OK) {
-			ESP_LOGE(F_TAG, "Failed to write IDX1 to file: %s", esp_err_to_name(err));
+			FABRIC_LOG_ERROR(F_TAG, "Failed to write IDX1 to file: %s", esp_err_to_name(err));
 			return err;
 		}
 		ctx->riff_size += sizeof(idx1);
@@ -426,7 +426,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 			ctx->out_file_handle->payload.data		= (char *)&byte_alignment_buffer;
 			err = write_file(ctx->out_file_handle);
 			if (err != ESP_OK) {
-				ESP_LOGE(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
+				FABRIC_LOG_ERROR(F_TAG, "Failed to write byte alignment buffer to file: %s", esp_err_to_name(err));
 				return err;
 			}
 			ctx->riff_size += sizeof(byte_alignment_buffer);
@@ -439,7 +439,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->riff_size_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the riff size: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the riff size: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -449,7 +449,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->avih_total_frames_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the avih total frames: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the avih total frames: %s", esp_err_to_name(err));
 		return err;
 	}
 
@@ -458,7 +458,7 @@ esp_err_t write_final_riff_updates(mjpeg_handle_t ctx) {
 	ctx->out_file_handle->payload.pos		= ctx->strh_length_pos;
 	err = update_file(ctx->out_file_handle);
 	if (err != ESP_OK) {
-		ESP_LOGE(F_TAG, "Failed to update the strh length: %s", esp_err_to_name(err));
+		FABRIC_LOG_ERROR(F_TAG, "Failed to update the strh length: %s", esp_err_to_name(err));
 		return err;
 	}
 
