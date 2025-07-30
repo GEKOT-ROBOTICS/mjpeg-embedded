@@ -317,7 +317,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 	uint8_t byte_alignment_buffer = 0x00;
 	uint32_t buffer[2] = {0x00};
 	
-	FABRIC_LOG_INFO(F_TAG, "Received frame buffer: %zu", ctx->total_frames++);
+	FABRIC_LOG_VERBOSE(F_TAG, "Received frame buffer: %zu", ctx->total_frames++);
 	IDX1 idx1 = {
 		.id	= FOURCC_00DC,
 		.flags	= 0,
@@ -333,7 +333,7 @@ esp_err_t write_jpeg_frame(mjpeg_handle_t ctx, frame_buffer_t frame_buffer) {
 		FABRIC_LOG_ERROR(F_TAG, "Failed to write IDX1 struct to file: %s", esp_err_to_name(err));
 		return err;
 	}
-	FABRIC_LOG_INFO(F_TAG, "Saved index information to index file");
+	FABRIC_LOG_VERBOSE(F_TAG, "Saved index information to index file");
 
 	// Write 00dc header and idx1 size to file
 	buffer[0] = FOURCC_00DC;
